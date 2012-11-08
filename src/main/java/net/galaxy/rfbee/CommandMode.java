@@ -21,12 +21,16 @@
 
 package net.galaxy.rfbee;
 
+import java.io.IOException;
+
 /**
  * Created with IntelliJ IDEA.
  * Pavel Boldyrev
  * 08/07/12 7:10 PM
  */
 public interface CommandMode {
+
+    static final String OK = "ok\n\r";
 
     static enum AddressCheck {
         /**
@@ -197,9 +201,9 @@ public interface CommandMode {
         SRC_DST_PAYLOAD,
         /**
          * <ul>
+         * <li>1 byte - payload length N,</li>
          * <li>1 byte - source,</li>
          * <li>1 byte - destination,</li>
-         * <li>1 byte - payload length N,</li>
          * <li>N bytes - payload.</li>
          * <li>1 byte - RSSI (received signal strength indicator), signed byte, dBm</li>
          * <li>1 byte - LQI (link quality indicator),</li>
@@ -217,7 +221,7 @@ public interface CommandMode {
      *
      * @param serialOutputFormat PAYLOAD by default.
      */
-    void setSerialOutputFormat(SerialOutputFormat serialOutputFormat);
+    void setSerialOutputFormat(SerialOutputFormat serialOutputFormat) throws IOException;
 
     static enum TransmissionMode {
         TRANSCEIVE,
@@ -236,9 +240,9 @@ public interface CommandMode {
      */
     void setTransmissionMode(TransmissionMode transmissionMode);
 
-    String getFirmwareVersion();
+    String getFirmwareVersion() throws IOException;
 
-    String getHardwareVersion();
+    String getHardwareVersion() throws IOException;
 
     void resetToDefault();
 }

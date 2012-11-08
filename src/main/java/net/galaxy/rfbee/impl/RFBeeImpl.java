@@ -21,12 +21,13 @@
 
 package net.galaxy.rfbee.impl;
 
-import net.galaxy.rfbee.CommandModeAccess;
-import net.galaxy.rfbee.RFBee;
-import net.galaxy.rfbee.ReceiveCallback;
+import net.galaxy.rfbee.*;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
@@ -37,27 +38,100 @@ import java.nio.ByteBuffer;
  */
 public class RFBeeImpl implements RFBee {
 
-    private final InputStream in;
-    private final OutputStream out;
+    private static final Logger logger = LoggerFactory.getLogger(RFBeeImpl.class.getSimpleName());
 
-    public RFBeeImpl(InputStream in, OutputStream out) {
-        this.in = in;
-        this.out = out;
+    private static final String CMD_MODE_START = "+++\n";
+    private static final String CMD_MODE_START_RESP = "ok, starting cmd mode\r\n";
+    private static final String CMD_MODE_STOP = "ATO0\r";
+
+    private final Connection connection;
+    private final CommandMode commandMode;
+    private volatile ReceiveCallback receiveCallback;
+
+    public RFBeeImpl(final int terminator) throws IOException {
+        this.connection = new Connection();
+        this.connection.open();
+        this.commandMode = new CommandModeImpl(connection);
+
+        runCommandMode(new CommandModeAccess() {
+            @Override
+            public void execute(CommandMode commandMode) {
+                try {
+                    logger.debug("RFbee HW version: [{}]", commandMode.getHardwareVersion());
+                    logger.debug("RFbee FW version: [{}]", commandMode.getFirmwareVersion());
+                    commandMode.setSerialOutputFormat(CommandMode.SerialOutputFormat.EXTENDED);
+                } catch (Exception ex) {
+                    logger.error("Exception while initializing RFbee", ex);
+                }
+            }
+        });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        logger.trace("waiting for data...");
+//                        System.out.print(Integer.toHexString(connection.getInputStream().read()).toUpperCase());
+//                        System.out.print(" ");
+
+                        ReceivedMessage msg = ReceivedMessageFactory.getFromStream(connection.getInputStream());
+                        logger.trace("message received: {}", msg);
+                        for (int i = 0; i < msg.getData().length; i++) {
+                            byte b = msg.getData()[i];
+                            if ((b & 0xff) == terminator) {
+                                byte[] payload = buffer.toByteArray();
+                                if (receiveCallback != null) {
+                                    receiveCallback.receive(payload);
+                                } else {
+                                    logger.trace("No callback -- discard received payload: `{}`",
+                                            StringEscapeUtils.escapeJava(new String(payload)));
+                                }
+                                buffer.reset();
+                            } else {
+                                buffer.write(b);
+                            }
+                        }
+
+                    } catch (Exception ex) {
+                        logger.error("Error reading data. Reset", ex);
+                    }
+                }
+                logger.warn("Reader terminated");
+            }
+        }, "READER").start();
+        logger.info("RFbee initialized and ready");
     }
 
     @Override
-    public void runCommandMode(CommandModeAccess commandMode) throws IOException {
+    public synchronized void runCommandMode(CommandModeAccess commandModeAccess) throws IOException {
+        connection.sendCmd(CMD_MODE_START, CMD_MODE_START_RESP);
 
-        //To change body of implemented methods use File | Settings | File Templates.
+        commandModeAccess.execute(commandMode);
+
+        connection.sendCmd(CMD_MODE_STOP, "ok\r\n");
+
+        connection.resetPort();
     }
 
     @Override
-    public void send(ByteBuffer buffer) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public synchronized void send(ByteBuffer buffer) throws IOException {
+        OutputStream os = connection.getOutputStream();
+        os.write(buffer.array());
+        os.flush();
     }
 
     @Override
     public void registerReceiveCallback(ReceiveCallback receiveCallback) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.receiveCallback = receiveCallback;
+    }
+
+    @Override
+    public synchronized void close() throws IOException {
+        if (this.connection != null) {
+            connection.close();
+        }
     }
 }

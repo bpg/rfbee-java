@@ -22,8 +22,7 @@
 package net.galaxy.rfbee.impl;
 
 import net.galaxy.rfbee.ReceivedMessage;
-
-import java.nio.ByteBuffer;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,11 +33,11 @@ public final class ReceivedMessageImpl implements ReceivedMessage {
 
     private final int src;
     private final int dst;
-    private final ByteBuffer data;
+    private final byte[] data;
     private final int rssi;
     private final int lqi;
 
-    protected ReceivedMessageImpl(int src, int dst, ByteBuffer data, int rssi, int lqi) {
+    protected ReceivedMessageImpl(int src, int dst, byte[] data, int rssi, int lqi) {
         this.src = src;
         this.dst = dst;
         this.data = data;
@@ -46,11 +45,11 @@ public final class ReceivedMessageImpl implements ReceivedMessage {
         this.lqi = lqi;
     }
 
-    protected ReceivedMessageImpl(int src, int dst, ByteBuffer data) {
+    protected ReceivedMessageImpl(int src, int dst, byte[] data) {
         this(src, dst, data, 0, 0);
     }
 
-    protected ReceivedMessageImpl(ByteBuffer data) {
+    protected ReceivedMessageImpl(byte[] data) {
         this(-1, -1, data, 0, 0);
     }
 
@@ -65,7 +64,7 @@ public final class ReceivedMessageImpl implements ReceivedMessage {
     }
 
     @Override
-    public ByteBuffer getData() {
+    public byte[] getData() {
         return data;
     }
 
@@ -77,5 +76,16 @@ public final class ReceivedMessageImpl implements ReceivedMessage {
     @Override
     public int getLqi() {
         return lqi;
+    }
+
+    @Override
+    public String toString() {
+        return "ReceivedMessageImpl{" +
+                "src=" + src +
+                ", dst=" + dst +
+                ", data=" + Hex.encodeHexString(data) +
+                ", rssi=" + rssi +
+                ", lqi=" + lqi +
+                '}';
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Project: rfbee-java, file: ReceivedMessage.java
+ * Project: rfbee-java, file: RFBeeImplTest.java
  * Copyright (C) 2012 Pavel Boldyrev <pboldyrev@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
@@ -19,21 +19,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.galaxy.rfbee;
+package net.galaxy.rfbee.impl;
+
+import org.junit.BeforeClass;
 
 /**
  * Created with IntelliJ IDEA.
  * Pavel Boldyrev
- * 08/07/12 8:30 PM
+ * 02/11/12 8:54 PM
  */
-public interface ReceivedMessage {
-    int getSrc();
+public class RFBeeImplTest {
 
-    int getDst();
+    @BeforeClass
+    public static void setUp() throws Exception {
+//        turn off logging
+//        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+//        lc.getLogger("root").setLevel(Level.TRACE);
+    }
 
-    byte[] getData();
-
-    int getRssi();
-
-    int getLqi();
+//    @Test
+//    public void testA() throws IOException, InterruptedException {
+//        RFBee bee = new RFBeeImpl(0x0a);
+//        bee.registerReceiveCallback(new ReceiveCallback() {
+//            @Override
+//            public void receive(byte[] data) {
+//                System.out.println(new String(data));
+//            }
+//        });
+//        Thread.sleep(180000);
+//        bee.close();
+//    }
 }

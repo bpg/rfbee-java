@@ -33,8 +33,10 @@ public interface RFBee {
 
     void runCommandMode(CommandModeAccess commandMode) throws IOException;
 
-    void send(ByteBuffer buffer);
+    void send(ByteBuffer buffer) throws IOException;
 
     void registerReceiveCallback(ReceiveCallback receiveCallback);
+
+    void close() throws IOException;
 
 }
