@@ -19,9 +19,30 @@ package net.galaxy.rfbee;
 /**
  * Created with IntelliJ IDEA.
  * Pavel Boldyrev
- * 08/07/12 8:22 PM
+ * 08/11/12 9:36 PM
  */
-public interface ReceiveCallback {
+public class SignalQuality {
 
-    void receive(ReceivedMessage message);
+    public static final SignalQuality NA = new SignalQuality(-1, -1);
+
+    private final int rssi;
+    private final int lqi;
+
+    public SignalQuality(int rssi, int lqi) {
+        this.rssi = rssi;
+        this.lqi = lqi;
+    }
+
+    public int getRssi() {
+        return rssi;
+    }
+
+    public int getLqi() {
+        return lqi;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + rssi + ":" + lqi + "}";
+    }
 }

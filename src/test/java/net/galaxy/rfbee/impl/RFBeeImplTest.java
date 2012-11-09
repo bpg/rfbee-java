@@ -1,27 +1,31 @@
 /*
- * Project: rfbee-java, file: RFBeeImplTest.java
  * Copyright (C) 2012 Pavel Boldyrev <pboldyrev@gmail.com>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.galaxy.rfbee.impl;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import net.galaxy.rfbee.RFBee;
+import net.galaxy.rfbee.ReceiveCallback;
+import net.galaxy.rfbee.ReceivedMessage;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,21 +36,21 @@ public class RFBeeImplTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-//        turn off logging
-//        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-//        lc.getLogger("root").setLevel(Level.TRACE);
+        //turn off logging
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        lc.getLogger("root").setLevel(Level.OFF);
     }
 
-//    @Test
-//    public void testA() throws IOException, InterruptedException {
-//        RFBee bee = new RFBeeImpl(0x0a);
-//        bee.registerReceiveCallback(new ReceiveCallback() {
-//            @Override
-//            public void receive(byte[] data) {
-//                System.out.println(new String(data));
-//            }
-//        });
-//        Thread.sleep(180000);
-//        bee.close();
-//    }
+    @Ignore
+    public void testA() throws IOException, InterruptedException {
+        RFBee bee = new RFBeeImpl(0x0a);
+        bee.registerReceiveCallback(new ReceiveCallback() {
+            @Override
+            public void receive(ReceivedMessage message) {
+                System.out.println(new String(message.getPayload()));
+            }
+        });
+        Thread.sleep(60000);
+        bee.close();
+    }
 }
