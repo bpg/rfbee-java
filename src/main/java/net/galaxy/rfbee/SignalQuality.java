@@ -41,6 +41,10 @@ public class SignalQuality {
         return lqi;
     }
 
+    public SignalQuality average(SignalQuality signalQuality) {
+        return new SignalQuality((this.rssi + signalQuality.rssi) / 2, (this.lqi + signalQuality.lqi) / 2);
+    }
+
     @Override
     public String toString() {
         return "{" + rssi + ":" + lqi + "}";

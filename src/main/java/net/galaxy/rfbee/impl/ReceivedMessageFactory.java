@@ -52,7 +52,7 @@ public class ReceivedMessageFactory {
         return new ReceivedMessageImpl(src, dst, buff, new SignalQuality(rssi, lqi));
     }
 
-    public static ReceivedMessage wrap(ReceivedMessage msg, byte[] newData) {
-        return new ReceivedMessageImpl(msg.getSrc(), msg.getDst(), newData, msg.getSignalQuality());
+    public static ReceivedMessage wrap(ReceivedMessage msg, byte[] newData, SignalQuality newSignalQuality) {
+        return new ReceivedMessageImpl(msg.getSrc(), msg.getDst(), newData, newSignalQuality);
     }
 }

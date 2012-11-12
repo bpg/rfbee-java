@@ -52,7 +52,7 @@ public class Connection {
 
     private static final String PORT_NAME = System.getProperty("serial.port.name", "/dev/ttyUSB*");
     private static final int PORT_BAUD_RATE = Integer.getInteger("serial.port.baud", 9600);
-    private static final long CMD_RESPONSE_TIMEOUT = 100;
+    private static final long CMD_RESPONSE_TIMEOUT = Integer.getInteger("rfbee.response.timeout", 100);
 
     private InputStream inputStream;
     private OutputStream outputStream;
@@ -95,7 +95,7 @@ public class Connection {
                     assureResponse("ok\r\n");
                     break;
                 } catch (IOException ex) {
-                    logger.debug("Not a RFbee on port {}", port);
+                    logger.info("Not a RFbee on port {}", port);
                     serialPort = null;
                 }
             } catch (Exception ex) {

@@ -65,6 +65,7 @@ public class RFBeeImpl implements RFBee {
             @Override
             public void run() {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                SignalQuality avgSignalQuality = SignalQuality.NA;
 
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
@@ -73,6 +74,7 @@ public class RFBeeImpl implements RFBee {
 //                        System.out.print(" ");
 
                         ReceivedMessage msg = ReceivedMessageFactory.getFromStream(connection.getInputStream());
+                        avgSignalQuality = avgSignalQuality.average(msg.getSignalQuality());
                         logger.trace("message received: {}", msg);
                         for (int i = 0; i < msg.getPayload().length; i++) {
                             byte b = msg.getPayload()[i];
@@ -80,7 +82,7 @@ public class RFBeeImpl implements RFBee {
                                 byte[] data = buffer.toByteArray();
                                 if (receiveCallback != null) {
                                     try {
-                                        receiveCallback.receive(ReceivedMessageFactory.wrap(msg, data));
+                                        receiveCallback.receive(ReceivedMessageFactory.wrap(msg, data, avgSignalQuality));
                                     } catch (Throwable th) {
                                         logger.error("Error processing data in callback", th);
                                     }
@@ -89,6 +91,7 @@ public class RFBeeImpl implements RFBee {
                                             StringEscapeUtils.escapeJava(new String(data)));
                                 }
                                 buffer.reset();
+                                avgSignalQuality = SignalQuality.NA;
                             } else {
                                 buffer.write(b);
                             }
